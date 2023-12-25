@@ -61,6 +61,8 @@ class ArxivAssistant:
         self.response_max_tokens = response_max_tokens
         self.temperature = temperature
         self.gpt_model = gpt_model
+        
+        self.run_dates = []
     
     def query_gpt_nostream(self, messages):
         server_error_cnt = 0
@@ -144,7 +146,6 @@ class ArxivAssistant:
         warnings.warn("Max number of trials exceeded for sending email")
     
     def fetch_yesterday_papers(self, max_try=5): 
-        today_str = date.today().strftime('%Y-%m-%d')
         yesterday_date = None
         papers = {}
         for category in self.categories:
@@ -178,7 +179,7 @@ class ArxivAssistant:
                             })
                         else:
                             break
-                    print(f"Num of papers for {category} {today_str}: {len(papers[category])}")
+                    print(f"Num of papers for {category} {self.today_str}: {len(papers[category])}")
                     flag = True
                     break
                 except Exception as e:
@@ -190,7 +191,7 @@ class ArxivAssistant:
                     
 
         
-        with open(os.path.join(self.save_dir, f"{today_str}_all.json"), "w") as f:
+        with open(os.path.join(self.save_dir, f"{self.today_str}_all.json"), "w") as f:
             json.dump(papers, f, indent=4)
             
         papers_all = [p for v in papers.values() for p in v]
@@ -198,7 +199,6 @@ class ArxivAssistant:
 
 
     def gpt_filter_papers(self, input_papers, max_try=5):
-        today_str = date.today().strftime('%Y-%m-%d')
         filtered_paper_indexes = []
         
         for i in range(math.ceil(len(input_papers) / self.max_papers_per_query)):
@@ -245,9 +245,9 @@ class ArxivAssistant:
             else:
                 removed_papers.append(paper)
         
-        with open(os.path.join(self.save_dir, f"{today_str}_filtered.json"), "w") as f:
+        with open(os.path.join(self.save_dir, f"{self.today_str}_filtered.json"), "w") as f:
             json.dump(filtered_papers, f, indent=4)
-        with open(os.path.join(self.save_dir, f"{today_str}_removed.json"), "w") as f:
+        with open(os.path.join(self.save_dir, f"{self.today_str}_removed.json"), "w") as f:
             json.dump(removed_papers, f, indent=4)
         
         return filtered_papers
@@ -292,6 +292,12 @@ PDF: {paper['pdf_link'].replace('v1', '')}
         
     def run_routine(self):
         while True:
+            self.today_str = date.today().strftime('%Y-%m-%d')
+            if self.today_str in self.run_dates:
+                print(f"Not a new day {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                time.sleep(self.routine_interval_hours * 60 * 60)
+                continue
+                
             papers = self.fetch_yesterday_papers()
             if len(papers) == 0:
                 print(f"No new papers found {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -301,7 +307,7 @@ PDF: {paper['pdf_link'].replace('v1', '')}
             if self.gpt_filter:
                 filtered_papers = self.gpt_filter_papers(papers)
                 if len(filtered_papers) == 0:
-                    print(f"No new papers found {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                    print(f"No filtered papers {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                     time.sleep(self.routine_interval_hours * 60 * 60)
                     continue
             else:
@@ -312,6 +318,7 @@ PDF: {paper['pdf_link'].replace('v1', '')}
                 self.send_mail_markdown(title, content, receiver)
 
             print(f"{len(filtered_papers)} papers filtered from {len(papers)} papers {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            self.run_dates.append(self.today_str)
             time.sleep(self.routine_interval_hours * 60 * 60)
             
 
