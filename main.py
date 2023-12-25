@@ -4,7 +4,7 @@ import json
 from assistant import ArxivAssistant
 
 with open("openai_key.txt") as f:
-    openai.api_key = f.read()
+    openai.api_key = f.read().strip()
     
 with open("mail_info.json") as f:
     mail_info = json.load(f)
@@ -21,5 +21,8 @@ assistant = ArxivAssistant(
     
     mail_receivers=mail_info.get("mail_receivers", None),
     gpt_filter=False,
+    
+    # routine_interval_hours=0.0000001,
 )
+# assistant.query_gpt("123")
 assistant.run_routine()

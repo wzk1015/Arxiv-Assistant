@@ -2,3 +2,5 @@ mail_info.json
 openai_key.txt
 /papers/
 __pycache__
+.vscode/
+proxy_setup.sh

@@ -63,11 +63,12 @@ class ArxivAssistant:
         self.gpt_model = gpt_model
         
         self.run_dates = []
+        self.today_str = date.today().strftime('%Y-%m-%d')
     
     def query_gpt_nostream(self, messages):
         server_error_cnt = 0
         if isinstance(messages, str):
-            messages = {"role": "user", "content" : messages}
+            messages = [{"role": "user", "content" : messages}]
         while server_error_cnt < 3:
             try:
                 response = openai.ChatCompletion.create(
@@ -90,7 +91,7 @@ class ArxivAssistant:
     def query_gpt_stream(self, messages):
         server_error_cnt = 0
         if isinstance(messages, str):
-            messages = {"role": "user", "content" : messages}
+            messages = [{"role": "user", "content" : messages}]
         full_response = ""
         while server_error_cnt < 3:
             try:
@@ -166,7 +167,7 @@ class ArxivAssistant:
                         paper_date = paper.published.date()
                         if yesterday_date is None:
                             yesterday_date = paper_date
-                            self.today_str = yesterday_date
+                            self.today_str = yesterday_date.strftime('%Y-%m-%d')
                             if self.today_str in self.run_dates:
                                 # print(f"Not a new day {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                                 return []
@@ -188,6 +189,7 @@ class ArxivAssistant:
                     flag = True
                     break
                 except Exception as e:
+                    # raise
                     print(f"Error with quering arxiv API: {e}")
                     query_count += 1
             if not flag:
