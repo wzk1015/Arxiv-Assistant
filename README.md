@@ -69,7 +69,7 @@ The program will check for new papers every 6 hours, use GPT to filter papers re
 
 2. Configure routine interval: Set `routine_interval_hours`. Defaults to 6.
 
-Note: Arxiv publishes new papers at [20:00 EST every Sunday to Thursday](https://info.arxiv.org/help/availability.html#announcement-schedule) When the interval is less than 24, only one of each four routines will succeed. When the interval is more than 24, only the last publish date (yesterday / last Thursday) is considered.
+Note: Arxiv publishes new papers at [20:00 EST every Sunday to Thursday](https://info.arxiv.org/help/availability.html#announcement-schedule) When the interval is less than 24, the routine only succeeds one time a day. When the interval is more than 24, only the last publish date (yesterday / last Thursday) is considered.
 
 3. Configure GPT: 
    1. `temperature`: output temperature. Defaults to 0.7.
