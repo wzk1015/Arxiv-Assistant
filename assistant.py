@@ -143,10 +143,9 @@ class ArxivAssistant:
                 i += 1
         warnings.warn("Max number of trials exceeded for sending email")
     
-    def fetch_yesterday_papers(self, max_try=5):
-        # yesterday_date = date.today() - timedelta(days=1)  
+    def fetch_yesterday_papers(self, max_try=5): 
         today_str = date.today().strftime('%Y-%m-%d')
-        yesterday_date = date.today() - timedelta(days=3)  
+        yesterday_date = None
         papers = {}
         for category in self.categories:
             papers[category] = []
@@ -164,6 +163,8 @@ class ArxivAssistant:
                     results = arxiv.Client().results(search)
                     for paper in results:
                         paper_date = paper.published.date()
+                        if yesterday_date is None:
+                            yesterday_date = paper_date
                         if paper_date == yesterday_date:
                             papers[category].append({
                                 'title': paper.title,
@@ -272,7 +273,7 @@ class ArxivAssistant:
     def format_email(self, papers):
         papers_info = ""
         for idx, paper in enumerate(papers):
-            papers_info += f"""{idx+1}. **{paper['title']}**
+            single_paper_info = f"""{idx+1}. **{paper['title']}**
             
 **Authors:** {', '.join(paper['authors'])}
 
@@ -283,6 +284,7 @@ class ArxivAssistant:
 PDF: {paper['pdf_link'].replace('v1', '')}
 
 """
+            papers_info += single_paper_info
         title = email_title_template.format(date=date.today().strftime('%Y-%m-%d'))
         content = email_content_template.format(papers_info=papers_info)
         return title, content
