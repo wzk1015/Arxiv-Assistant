@@ -166,6 +166,11 @@ class ArxivAssistant:
                         paper_date = paper.published.date()
                         if yesterday_date is None:
                             yesterday_date = paper_date
+                            self.today_str = yesterday_date
+                            if self.today_str in self.run_dates:
+                                # print(f"Not a new day {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                                return []
+                            
                         if paper_date == yesterday_date:
                             papers[category].append({
                                 'title': paper.title,
@@ -292,12 +297,6 @@ PDF: {paper['pdf_link'].replace('v1', '')}
         
     def run_routine(self):
         while True:
-            self.today_str = date.today().strftime('%Y-%m-%d')
-            if self.today_str in self.run_dates:
-                print(f"Not a new day {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-                time.sleep(self.routine_interval_hours * 60 * 60)
-                continue
-                
             papers = self.fetch_yesterday_papers()
             if len(papers) == 0:
                 print(f"No new papers found {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -341,5 +340,6 @@ if __name__ == '__main__':
         negative_keywords=['3D', 'medical'],
         
         mail_receivers=mail_info.get("mail_receivers", None),
+        # routine_interval_hours=0.0000001,
     )
     assistant.run_routine()
