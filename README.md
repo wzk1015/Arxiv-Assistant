@@ -14,9 +14,17 @@ The program will check for new papers every 6 hours, use GPT to filter papers re
 
 ## Quick Start
 
-1. Save your OpenAI API key in `openai_key.txt`. If you don't want to use GPT filter or don't have an OpenAI API key, set `gpt_filter=False` when initializing `ArxivAssistant`.
+1. Ensure that your network can connect to arxiv API and ChatGPT API
 
-2. Set up SMTP in your email ([Instructions](https://chat.openai.com/share/18e7b344-9f62-4c25-a75c-2bb822893c33)) and save the related information in `mail_info.json`. An example:
+2. Install packages
+
+   ```bash
+   pip install openai arxiv markdown2
+   ```
+
+3. Save your OpenAI API key in `openai_key.txt`. If you don't want to use GPT filter or don't have an OpenAI API key, set `gpt_filter=False` when initializing `ArxivAssistant`.
+
+4. Set up SMTP in your email ([Instructions](https://chat.openai.com/share/18e7b344-9f62-4c25-a75c-2bb822893c33)) and save the related information in `mail_info.json`. An example:
 
    ```json
    {
@@ -26,7 +34,7 @@ The program will check for new papers every 6 hours, use GPT to filter papers re
    }
    ```
 
-3. Run the routine. Make sure the program runs constantly, e.g. run with tmux on a server
+5. Run the routine. Make sure the program runs constantly, e.g. run with tmux on a server
 
    ```python
    import openai
@@ -69,7 +77,7 @@ The program will check for new papers every 6 hours, use GPT to filter papers re
 
 2. Configure routine interval: Set `routine_interval_hours`. Defaults to 6.
 
-Note: Arxiv publishes new papers at [20:00 EST every Sunday to Thursday](https://info.arxiv.org/help/availability.html#announcement-schedule) When the interval is less than 24, the routine only succeeds one time a day. When the interval is more than 24, only the last publish date (yesterday / last Thursday) is considered.
+Note: Arxiv publishes new papers at [20:00 EST every Sunday to Thursday](https://info.arxiv.org/help/availability.html#announcement-schedule). When the interval is less than 24, the routine only succeeds one time a day. When the interval is more than 24, only the last publish date (yesterday / last Thursday) is considered.
 
 3. Configure GPT: 
    1. `temperature`: output temperature. Defaults to 0.7.
